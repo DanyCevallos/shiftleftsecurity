@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift Left Security — ULEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --off: #f8f7f4;
+    --bd: #e8e4de;
+    --bd2: #f0ece6;
+    --t1: #1a1a1a;
+    --t2: #555550;
+    --t3: #999990;
+    --code: #f6f4f1;
+    --code-bd: #e0dbd3;
+    --mono: "DM Mono", monospace;
+    --sans: "DM Sans", sans-serif;
+    --serif: "Playfair Display", serif;
+    --red: #c0392b;
+    --green: #1a6b3a;
+    --blue: #1a3a6b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+
+  header{border-bottom:1px solid var(--bd);padding:56px 48px 40px;max-width:1080px;margin:0 auto}
+  .meta{font-family:var(--mono);font-size:11px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-family:var(--serif);font-size:clamp(2.4rem,5vw,3.6rem);font-weight:700;line-height:1.08;letter-spacing:-.02em}
+  h1 em{font-style:italic;color:var(--t2)}
+  .hdesc{font-size:15px;color:var(--t2);max-width:540px;margin-top:14px;line-height:1.6}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .tag{font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:3px 10px;background:var(--bd2);color:var(--t2);border-radius:2px;text-transform:uppercase}
+  .tag.r{background:#fdf0ee;color:var(--red)}
+  .tag.b{background:#edf0f6;color:var(--blue)}
+  .tag.g{background:#edf6f1;color:var(--green)}
+
+  nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
+  .nav-i{max-width:1080px;margin:0 auto;padding:0 48px;display:flex;overflow-x:auto;scrollbar-width:none}
+  .nav-i::-webkit-scrollbar{display:none}
+  .tb{font-family:var(--sans);font-size:13px;font-weight:400;color:var(--t3);background:none;border:none;border-bottom:1.5px solid transparent;padding:14px 18px 13px;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+  .tb:hover{color:var(--t1)}
+  .tb.on{color:var(--t1);font-weight:600;border-bottom-color:var(--t1)}
+
+  main{max-width:1080px;margin:0 auto;padding:0 48px}
+  .panel{display:none;padding:52px 0 80px;animation:up .25s ease}
+  .panel.on{display:block}
+  @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  .eye{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:12px}
+  h2{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:32px}
+  h3{font-size:15px;font-weight:600;margin-bottom:8px}
+  p{color:var(--t2);line-height:1.75}
+  hr{border:none;border-top:1px solid var(--bd);margin:40px 0}
+  code{font-family:var(--mono);font-size:11.5px;background:var(--code);padding:1px 5px;border-radius:3px}
+
+  .card{border:1px solid var(--bd);border-radius:6px;padding:28px 32px;margin-bottom:16px;transition:border-color .15s}
+  .card:hover{border-color:#c8c4bc}
+  .card .eye{margin-bottom:10px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin:32px 0}
+  .stat{background:var(--bg);padding:24px 20px;text-align:center;transition:background .15s}
+  .stat:hover{background:var(--off)}
+  .stat .v{display:block;font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--t1);line-height:1;margin-bottom:6px}
+  .stat .l{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;line-height:1.4}
+
+  .def-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px}
+  .def{border:1px solid var(--bd);border-radius:6px;padding:28px;background:var(--off)}
+  .def .n{font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:12px;display:block}
+  .def p{font-size:14px;line-height:1.75}
+  .def cite{display:block;margin-top:16px;font-family:var(--mono);font-size:10px;color:var(--t3);font-style:normal}
+
+  .prx{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-top:24px}
+  .pr{background:var(--bg);padding:28px;transition:background .15s}
+  .pr:hover{background:var(--off)}
+  .pr .n{font-family:var(--mono);font-size:11px;color:var(--t3);margin-bottom:12px;display:block}
+  .pr h4{font-size:14px;font-weight:600;margin-bottom:8px;line-height:1.4}
+  .pr p{font-size:13px;line-height:1.65}
+  .pr cite{display:block;margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--t3);font-style:normal}
+
+  .tl{display:flex;align-items:flex-start;margin:40px 0;position:relative;overflow-x:auto;padding-bottom:8px}
+  .tl::before{content:"";position:absolute;top:14px;left:24px;right:24px;height:1px;background:var(--bd)}
+  .tli{flex:1;display:flex;flex-direction:column;align-items:center;min-width:80px;position:relative;z-index:1}
+  .tld{width:10px;height:10px;border-radius:50%;background:var(--bg);border:1.5px solid var(--bd);margin-bottom:12px}
+  .tli.on .tld{background:var(--t1);border-color:var(--t1)}
+  .tll{font-family:var(--mono);font-size:10px;color:var(--t3);text-align:center;line-height:1.4}
+  .tli.on .tll{color:var(--t1);font-weight:500}
+  .tla{font-family:var(--mono);font-size:9px;color:var(--t3);text-align:center;margin-top:4px}
+  .tli.on .tla{color:var(--t1)}
+
+  .tw{overflow-x:auto;border:1px solid var(--bd);border-radius:6px;margin:24px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead{background:var(--off);border-bottom:1px solid var(--bd)}
+  thead th{padding:13px 20px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--t3);text-transform:uppercase;font-weight:400;white-space:nowrap}
+  tbody tr{border-bottom:1px solid var(--bd2)}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:var(--off)}
+  tbody td{padding:14px 20px;vertical-align:top;color:var(--t2);line-height:1.6}
+  tbody td:first-child{font-family:var(--mono);font-size:11px;color:var(--t3);white-space:nowrap}
+
+  .badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:2px;white-space:nowrap}
+  .br{background:#fdf0ee;color:var(--red)}
+  .bg{background:#edf6f1;color:var(--green)}
+  .bb{background:#edf0f6;color:var(--blue)}
+  .bn{background:var(--bd2);color:var(--t2)}
+
+  .cb{background:var(--code);border:1px solid var(--code-bd);border-radius:6px;overflow:hidden;margin:24px 0}
+  .ch{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--code-bd);background:var(--off)}
+  .ch span{font-family:var(--mono);font-size:11px;color:var(--t3)}
+  pre{padding:24px;font-family:var(--mono);font-size:12.5px;line-height:1.8;overflow-x:auto;color:var(--t1)}
+  .kw{color:#7c3aed}
+  .st{color:#059669}
+  .cm{color:var(--t3);font-style:italic}
+  .fn{color:#0369a1}
+  .hb{background:#fff0ee}
+  .hg{background:#edfaf2}
+
+  .pbl{list-style:none;display:flex;flex-direction:column;gap:12px;margin-top:8px}
+  .pbl li{display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start;padding:20px 24px;border:1px solid var(--bd);border-radius:6px;transition:border-color .15s}
+  .pbl li:hover{border-color:#c8c4bc}
+  .ico{width:36px;height:36px;background:var(--off);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ico svg{width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .cnt strong{display:block;font-weight:600;color:var(--t1);font-size:14px;margin-bottom:4px}
+  .cnt p{font-size:13.5px}
+
+  .imps{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .imp{display:flex;gap:14px;align-items:flex-start;font-size:13.5px;color:var(--t2);line-height:1.65;padding:14px 18px;border:1px solid var(--bd);border-radius:4px}
+  .imp::before{content:"92";font-family:var(--mono);color:var(--t3);flex-shrink:0;margin-top:1px}
+
+  .qt{border-left:2px solid var(--t1);padding:20px 28px;margin:32px 0}
+  .qt p{font-family:var(--serif);font-size:1.15rem;font-style:italic;color:var(--t1);line-height:1.65}
+  .qt footer{margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--t3)}
+
+  .rl{list-style:none;display:flex;flex-direction:column;gap:2px}
+  .rl li{display:grid;grid-template-columns:32px 1fr;gap:16px;padding:16px 20px;border-radius:4px;transition:background .15s;font-size:13px;line-height:1.65;color:var(--t2)}
+  .rl li:hover{background:var(--off)}
+  .rl .ri{font-family:var(--mono);font-size:10px;color:var(--t3);padding-top:2px}
+  .rl a{color:var(--t1)}
+  .rl a:hover{color:var(--t2);text-decoration:none}
+
+  .auths{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+  .auth{display:flex;align-items:center;gap:12px;border:1px solid var(--bd);border-radius:4px;padding:12px 18px}
+  .av{width:40px;height:40px;border-radius:50%;background:var(--t1);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:500;flex-shrink:0;letter-spacing:.03em}
+  .ai strong{display:block;font-size:13.5px;font-weight:600}
+  .ai span{font-family:var(--mono);font-size:10px;color:var(--t3)}
+
+  footer.ft{border-top:1px solid var(--bd);padding:28px 48px;max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer.ft p{font-family:var(--mono);font-size:10px;color:var(--t3);line-height:1.6}
+
+  @media(max-width:680px){.def-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){header,.nav-i,main,footer.ft{padding-left:20px;padding-right:20px}header{padding-top:36px;padding-bottom:28px}.panel{padding:36px 0 60px}.tb{padding:14px 12px 13px;font-size:12px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="meta">ULEAM &middot; Ingenieria en Software &middot; 2026-1 &middot; Grupo 6</div>
+  <h1>Shift Left<br><em>Security</em></h1>
+  <p class="hdesc">Analisis de vulnerabilidades y aplicacion de principios de seguridad preventiva en el ciclo de vida del software, bajo el enfoque DevSecOps.</p>
+  <div class="tags">
+    <span class="tag">DevSecOps</span>
+    <span class="tag">OWASP Top 10</span>
+    <span class="tag">SAST / DAST</span>
+    <span class="tag r">5 Vulnerabilidades</span>
+    <span class="tag b">Codigo Grupo 6</span>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-i">
+    <button class="tb on" onclick="show(this,0)">Introduccion</button>
+    <button class="tb" onclick="show(this,1)">Que es?</button>
+    <button class="tb" onclick="show(this,2)">Problema</button>
+    <button class="tb" onclick="show(this,3)">Sprints Agiles</button>
+    <button class="tb" onclick="show(this,4)">Codigo</button>
+    <button class="tb" onclick="show(this,5)">Reflexion</button>
+    <button class="tb" onclick="show(this,6)">Referencias</button>
+  </div>
+</nav>
+
+<main>
+<section class="panel on" id="p0">
+  <div class="eye">01 &mdash; Introduccion</div>
+  <h2>Contexto del analisis</h2>
+  <div class="stats">
+    <div class="stat"><span class="v">5</span><span class="l">Vulnerabilidades encontradas</span></div>
+    <div class="stat"><span class="v">3</span><span class="l">Categorias OWASP afectadas</span></div>
+    <div class="stat"><span class="v">&lt;10</span><span class="l">Lineas de codigo analizadas</span></div>
+    <div class="stat"><span class="v">100x</span><span class="l">Mas caro corregir en produccion</span></div>
+  </div>
+  <div class="card">
+    <p>Cuando alguien escribe <code>if(user.equals(&quot;admin&quot;) &amp;&amp; pass.equals(&quot;1234&quot;))</code>, quizas lo hace &ldquo;de momento, para probar&rdquo;. El problema es que ese &ldquo;de momento&rdquo; puede durar anos, y en ese tiempo cualquier persona que acceda al codigo tiene las llaves del sistema.</p>
+    <br>
+    <p>Somos estudiantes de sexto semestre de Ingenieria en Software en ULEAM. Este analisis parte del codigo asignado al Grupo 6, que tiene tres problemas en menos de diez lineas: credenciales quemadas en el codigo, una contrasena trivial, y un log que imprime lo que el usuario escribio. Tres errores, un solo atacante necesario.</p>
+  </div>
+  <div class="card">
+    <div class="eye">Contexto academico</div>
+    <h3>Asignatura: Ciclos de Desarrollo del Software Seguro</h3>
+    <p style="margin-top:8px">Unidad 3 &mdash; Metodologias Agiles y Seguridad (DevSecOps). Periodo 2026-1. Docente: Lic. Eliecer Castillo Bravo. El objetivo es aplicar principios de Shift Left Security mediante el analisis de codigo vulnerable y la propuesta de soluciones tecnicas fundamentadas.</p>
+  </div>
+  <div style="margin-top:48px">
+    <div class="eye">Equipo de analisis</div>
+    <div class="auths">
+      <div class="auth"><div class="av">RAM</div><div class="ai"><strong>Alcivar Muñoz Ramiro Alejandro</strong><span>Ingenieria en Software &middot; 6to semestre</span></div></div>
+      <div class="auth"><div class="av">DCY</div><div class="ai"><strong>Cevallos Pinargote Dany Yoel</strong><span>Ingenieria en Software &middot; 6to semestre</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="p1">
+  <div class="eye">02 &mdash; Definicion</div>
+  <h2>Que es Shift Left Security?</h2>
+  <div class="def-grid">
+    <div class="def">
+      <span class="n">Definicion 01</span>
+      <p>Shift Left Security es la practica de incorporar controles y revisiones de seguridad desde las primeras etapas del ciclo de vida del software, en lugar de hacerlo al final, cuando corregir un error cuesta entre <strong style="color:var(--t1)">30 y 100 veces mas</strong>. El termino hace referencia a mover la seguridad hacia la izquierda en la linea de tiempo del proyecto.</p>
+      <cite>&mdash; Seelam, J. (2019). Integrating Shift-Left Security in CI/CD.</cite>
+    </div>
+    <div class="def">
+      <span class="n">Definicion 02</span>
+      <p>Segun la OWASP Foundation, el enfoque de seguridad temprana consiste en integrar pruebas, revisiones de codigo y analisis de amenazas dentro del propio flujo de trabajo del equipo de desarrollo, haciendo que la seguridad sea <strong style="color:var(--t1)">responsabilidad de todos</strong> y no solo del equipo de operaciones al momento del despliegue.</p>
+      <cite>&mdash; OWASP DevSecOps Guideline v0.2</cite>
+    </div>
+  </div>
+  <div class="eye">La idea visual del shift</div>
+  <div class="tl">
+    <div class="tli on"><div class="tld"></div><div class="tll">Diseno</div><div class="tla">&larr; aqui</div></div>
+    <div class="tli on"><div class="tld"></div><div class="tll">Desarrollo</div><div class="tla">&larr; aqui</div></div>
+    <div class="tli"><div class="tld"></div><div class="tll">Testing</div></div>
+    <div class="tli"><div class="tld"></div><div class="tll">Staging</div></div>
+    <div class="tli"><div class="tld" style="border-color:#e8c0bc"></div><div class="tll" style="color:var(--red)">Produccion</div><div class="tla" style="color:var(--red)">no aqui x</div></div>
+  </div>
+  <div style="margin-top:48px">
+    <div class="eye">5 Principios fundamentales</div>
+    <div class="prx">
+      <div class="pr"><span class="n">01</span><h4>Detectar antes, no despues</h4><p>Un error encontrado durante el diseno tarda horas en corregirse. El mismo error en produccion puede tardar semanas y costar reputacion.</p><cite>&mdash; Toner et al., 2025</cite></div>
+      <div class="pr"><span class="n">02</span><h4>La seguridad es parte del codigo</h4><p>No se trata de agregar herramientas al final del pipeline. Cada linea de codigo debe escribirse pensando en quien podria abusar de ella.</p><cite>&mdash; Malik &amp; Prashasti, 2025</cite></div>
+      <div class="pr"><span class="n">03</span><h4>Automatizacion continua</h4><p>Las pruebas SAST deben correr en cada commit. Si el equipo tiene que recordar ejecutarlas manualmente, eventualmente alguien se olvidara.</p><cite>&mdash; Singh, 2019</cite></div>
+      <div class="pr"><span class="n">04</span><h4>Cultura sobre herramientas</h4><p>Las herramientas no sirven si nadie les hace caso. Shift Left requiere que los desarrolladores entiendan por que hacen lo que hacen.</p><cite>&mdash; Harness.io Blog, 2026</cite></div>
+      <div class="pr"><span class="n">05</span><h4>Responsabilidad compartida</h4><p>El desarrollador que escribe el codigo es el primero responsable de su seguridad. QA y arquitectos son capas de respaldo, no los unicos responsables.</p><cite>&mdash; Mohammed et al., 2025</cite></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="p2">
+  <div class="eye">03 &mdash; Problema</div>
+  <h2>Que problema soluciona?</h2>
+  <div class="card"><p>El codigo del Grupo 6 tiene un problema que parece pequeno pero representa una vulnerabilidad critica: las credenciales estan escritas directamente en el codigo fuente. Esto expone el sistema a multiples vectores de ataque de forma simultanea.</p></div>
+  <ul class="pbl" style="margin-top:24px">
+    <li><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="cnt"><strong>Acceso universal al repositorio</strong><p>Cualquier persona con acceso al repositorio tiene el usuario y la contrasena del sistema, incluso con permisos de solo lectura.</p></div></li>
+    <li><div class="ico"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10" r="3"/></svg></div><div class="cnt"><strong>Bots automatizados en minutos</strong><p>Si el codigo se sube a GitHub sin proteccion, bots automatizados escanean credenciales hardcodeadas y las detectan en cuestiones de minutos.</p></div></li>
+    <li><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div><div class="cnt"><strong>Contrasenas en texto plano en los logs</strong><p><code>System.out.println(&quot;Login: &quot; + user + &quot; - &quot; + pass)</code> registra lo que el usuario escribe, exponiendo credenciales en archivos de log y consolas de servidores.</p></div></li>
+    <li><div class="ico"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div><div class="cnt"><strong>Contrasena trivialmente debil</strong><p>La contrasena <code>&quot;1234&quot;</code> no cumple ninguna politica de seguridad minima y es la primera que cualquier atacante intentaria en fuerza bruta.</p></div></li>
+    <li><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="cnt"><strong>Sin limite de intentos</strong><p>No hay ningun mecanismo de rate limiting, bloqueo de cuenta ni CAPTCHA. Un atacante puede intentar millones de combinaciones sin restricciones.</p></div></li>
+    <li><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="cnt"><strong>Como lo resuelve Shift Left</strong><p>Desde el Sprint 1 se establecen reglas que prohiben credenciales hardcodeadas y las herramientas SAST (SonarQube, Semgrep) las detectan automaticamente antes de que el codigo llegue a revision.</p></div></li>
+  </ul>
+</section>
+
+<section class="panel" id="p3">
+  <div class="eye">04 &mdash; Metodologia Agil</div>
+  <h2>Relacion con Sprints Agiles</h2>
+  <div class="card"><p>La clave de Shift Left es que la seguridad no espera al sprint de pruebas. Cada sprint tiene actividades de seguridad especificas y proporcionales al riesgo del componente que se esta construyendo.</p></div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Sprint</th><th>Actividad</th><th>Seguridad aplicada</th></tr></thead>
+      <tbody>
+        <tr><td>Sprint 1</td><td>Diseno del modulo de autenticacion</td><td>Definir politica de credenciales: nunca en el codigo fuente. Usar variables de entorno o gestores de secretos (HashiCorp Vault).</td></tr>
+        <tr><td>Sprint 2</td><td>Implementacion del login</td><td>Revisar con SAST &mdash; SonarQube, Semgrep &mdash; que no existan strings con credenciales. Configurar regla en el pipeline CI/CD.</td></tr>
+        <tr><td>Sprint 3</td><td>Pruebas del sistema</td><td>DAST con OWASP ZAP: intentar login con credenciales conocidas. Verificar que los logs no contengan contrasenas en texto plano.</td></tr>
+        <tr><td>Sprint 4</td><td>Revision pre-entrega</td><td>Code review en gestion de secretos. Verificar que <code>.env</code> esta en <code>.gitignore</code>. Auditoria de permisos.</td></tr>
+        <tr><td>Sprint 5</td><td>Monitoreo post-despliegue</td><td>Verificar que ningun log exponga contrasenas. Alertas ante intentos fallidos. Rotacion de credenciales con Vault.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+    <span class="tag b">SAST &mdash; Analisis estatico</span>
+    <span class="tag g">DAST &mdash; Pruebas en ejecucion</span>
+    <span class="tag">CI/CD &mdash; Pipeline automatizado</span>
+    <span class="tag">Vault &mdash; Gestion de secretos</span>
+  </div>
+</section>
+
+<section class="panel" id="p4">
+  <div class="eye">05 &mdash; Ejemplo aplicado</div>
+  <h2>Codigo vulnerable &amp; codigo mejorado</h2>
+
+  <div class="eye" style="margin-top:0">Codigo vulnerable &mdash; Grupo 6</div>
+  <div class="cb">
+    <div class="ch"><span>LoginServlet.java &mdash; version original</span><span class="badge br">Vulnerable</span></div>
+    <pre><span class="kw">String</span> user = request.getParameter(<span class="st">&quot;user&quot;</span>);
+<span class="kw">String</span> pass = request.getParameter(<span class="st">&quot;pass&quot;</span>);
+
+<span class="cm">// Log de credenciales en texto plano (A09)</span>
+<span class="hb">System.out.println(<span class="st">&quot;Login: &quot;</span> + user + <span class="st">&quot; - &quot;</span> + pass);</span>
+
+<span class="cm">// Credenciales hardcodeadas + contrasena debil + sin hash + sin rate limit (A07, A02)</span>
+<span class="hb"><span class="kw">if</span>(user.equals(<span class="st">&quot;admin&quot;</span>) &amp;&amp; pass.equals(<span class="st">&quot;1234&quot;</span>)){
+    acceso = <span class="kw">true</span>;
+}</span></pre>
+  </div>
+
+  <div class="eye" style="margin-top:40px">Tabla de analisis de vulnerabilidades</div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>Vulnerabilidad</th><th>Evidencia en el codigo</th><th>OWASP</th><th>Tipo</th><th>Automatica?</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>Credenciales hardcodeadas</td><td><code>pass.equals(&quot;1234&quot;) &amp;&amp; user.equals(&quot;admin&quot;)</code></td><td><span class="badge bb">A07:2021</span></td><td>SAST</td><td><span class="badge bg">Automatica</span></td></tr>
+        <tr><td>02</td><td>Contrasena debil</td><td><code>&quot;1234&quot;</code> no cumple politica minima</td><td><span class="badge bb">A07:2021</span></td><td>SAST + Manual</td><td><span class="badge bn">Manual</span></td></tr>
+        <tr><td>03</td><td>Log de credenciales en texto plano</td><td><code>println(&quot;Login: &quot; + user + &quot; - &quot; + pass)</code></td><td><span class="badge bb">A09:2021</span></td><td>SAST</td><td><span class="badge bg">Automatica</span></td></tr>
+        <tr><td>04</td><td>Sin proteccion contra fuerza bruta</td><td>No hay limite de intentos, CAPTCHA ni bloqueo</td><td><span class="badge bb">A07:2021</span></td><td>DAST</td><td><span class="badge bg">Automatica (ZAP)</span></td></tr>
+        <tr><td>05</td><td>Sin cifrado de contrasena</td><td>Comparacion en texto plano, no hash bcrypt</td><td><span class="badge bb">A02:2021</span></td><td>SAST</td><td><span class="badge bg">Automatica</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="eye" style="margin-top:40px">Codigo seguro &mdash; version mejorada</div>
+  <div class="cb">
+    <div class="ch"><span>LoginServlet.java &mdash; version segura</span><span class="badge bg">Seguro</span></div>
+    <pre><span class="cm">// Credenciales desde variables de entorno, no hardcodeadas</span>
+<span class="hg"><span class="kw">private static final</span> String ADMIN_USER = System.<span class="fn">getenv</span>(<span class="st">&quot;APP_ADMIN_USER&quot;</span>);
+<span class="kw">private static final</span> String ADMIN_HASH = System.<span class="fn">getenv</span>(<span class="st">&quot;APP_ADMIN_HASH&quot;</span>);</span> <span class="cm">// bcrypt hash</span>
+
+<span class="cm">// Rate limiting por IP (max 5 intentos / 15 min)</span>
+<span class="hg">LoadingCache&lt;String, Integer&gt; loginAttempts = CacheBuilder.newBuilder()
+    .expireAfterWrite(<span class="st">15</span>, TimeUnit.MINUTES)
+    .build(CacheLoader.from(k -&gt; <span class="st">0</span>));</span>
+
+<span class="kw">protected void</span> <span class="fn">doPost</span>(HttpServletRequest req, HttpServletResponse res) {
+    String user = req.<span class="fn">getParameter</span>(<span class="st">&quot;user&quot;</span>);
+    String pass = req.<span class="fn">getParameter</span>(<span class="st">&quot;pass&quot;</span>);
+    String ip   = req.<span class="fn">getRemoteAddr</span>();
+
+    <span class="cm">// Log sin datos sensibles, solo IP y timestamp</span>
+    <span class="hg">logger.<span class="fn">info</span>(<span class="st">&quot;Login attempt from IP: {}&quot;</span>, ip);</span>
+
+    <span class="cm">// Bloqueo tras 5 intentos fallidos</span>
+    <span class="hg"><span class="kw">if</span> (loginAttempts.<span class="fn">get</span>(ip) &gt;= <span class="st">5</span>) {
+        res.<span class="fn">sendError</span>(<span class="st">429</span>, <span class="st">&quot;Demasiados intentos. Intente mas tarde.&quot;</span>);
+        <span class="kw">return</span>;
+    }</span>
+
+    <span class="cm">// Comparacion con hash bcrypt, nunca texto plano</span>
+    <span class="hg"><span class="kw">boolean</span> valid = user.<span class="fn">equals</span>(ADMIN_USER) &amp;&amp; BCrypt.<span class="fn">checkpw</span>(pass, ADMIN_HASH);</span>
+
+    <span class="kw">if</span> (valid) {
+        <span class="cm">// Regenerar sesion para prevenir session fixation</span>
+        <span class="hg">req.<span class="fn">getSession</span>(<span class="kw">false</span>).<span class="fn">invalidate</span>();
+        req.<span class="fn">getSession</span>(<span class="kw">true</span>).<span class="fn">setAttribute</span>(<span class="st">&quot;user&quot;</span>, user);
+        res.<span class="fn">sendRedirect</span>(<span class="st">&quot;dashboard.jsp&quot;</span>);</span>
+    } <span class="kw">else</span> {
+        loginAttempts.<span class="fn">put</span>(ip, loginAttempts.<span class="fn">get</span>(ip) + <span class="st">1</span>);
+        <span class="cm">// Mensaje generico, no revela que campo fallo</span>
+        <span class="hg">res.<span class="fn">sendError</span>(<span class="st">401</span>, <span class="st">&quot;Credenciales invalidas.&quot;</span>);</span>
+    }
+}</pre>
+  </div>
+
+  <div class="eye" style="margin-top:32px">Mejoras aplicadas &mdash; Principio Shift Left Security</div>
+  <div class="imps">
+    <div class="imp">Credenciales movidas a variables de entorno (<code>System.getenv()</code>) &mdash; eliminado el hardcoding desde el Sprint 1.</div>
+    <div class="imp">Contrasena almacenada como hash bcrypt &mdash; nunca se compara texto plano contra texto plano.</div>
+    <div class="imp">Log de auditoria que solo registra la IP, nunca el username ni la contrasena.</div>
+    <div class="imp">Rate limiting por IP con ventana de 15 minutos &mdash; defensa ante fuerza bruta automatizada.</div>
+    <div class="imp">Regeneracion del ID de sesion al autenticar &mdash; previene session fixation attack.</div>
+    <div class="imp">Mensaje de error generico &mdash; no revela cual campo (usuario o contrasena) es incorrecto.</div>
+    <div class="imp">Estas reglas se validan automaticamente con SonarQube/Semgrep en cada commit del pipeline CI/CD.</div>
+  </div>
+</section>
+
+<section class="panel" id="p5">
+  <div class="eye">06 &mdash; Pensamiento critico</div>
+  <h2>Reflexion critica</h2>
+  <div class="qt">
+    <p>&ldquo;La seguridad no se anade al software&hellip; Se disena desde el primer momento en que se piensa el sistema.&rdquo;</p>
+    <footer>&mdash; Lic. Eliecer Castillo Bravo, Docente ULEAM</footer>
+  </div>
+  <div class="card">
+    <div class="eye">El rol del ingeniero de software</div>
+    <p>Este ejercicio nos hace reflexionar sobre algo que los libros de texto no siempre enfatizan: el ingeniero que escribe <code>pass.equals(&quot;1234&quot;)</code> probablemente no penso en las consecuencias. No porque sea negligente, sino porque la cultura del equipo o el apuro del sprint no le recordo que esa decision tiene consecuencias reales. La responsabilidad de la seguridad no es del equipo de QA ni del arquitecto: empieza en quien escribe la primera linea de codigo.</p>
+  </div>
+  <div class="card">
+    <div class="eye">Limitaciones de las herramientas</div>
+    <p>Una herramienta SAST como SonarQube puede detectar que hay una contrasena hardcodeada, pero no puede entender el contexto organizacional: por que se tomo esa decision? Era un parche temporal que nadie elimino? La automatizacion resuelve la deteccion, pero la cultura de seguridad es lo que resuelve la raiz del problema. Un equipo que entiende el riesgo no necesita que la herramienta le grite.</p>
+  </div>
+  <div class="card">
+    <div class="eye">Relacion con decisiones de diseno</div>
+    <p>Los tres problemas del codigo (credenciales hardcodeadas, log inseguro, ausencia de rate limiting) podrian haberse prevenido con decisiones tomadas en la fase de diseno, antes de escribir una sola linea de codigo. Un threat model basico de 30 minutos habria identificado &ldquo;que pasa si alguien accede al repositorio?&rdquo; como una amenaza real. Eso es exactamente lo que propone Shift Left: no es una tecnica de testing, es una forma de pensar el software desde el principio.</p>
+  </div>
+  <div class="qt" style="border-color:var(--bd);margin-top:40px">
+    <p>&ldquo;Las herramientas detectan sintomas. La cultura cura la enfermedad.&rdquo;</p>
+    <footer>&mdash; Reflexion del equipo de analisis, ULEAM 2026</footer>
+  </div>
+</section>
+
+<section class="panel" id="p6">
+  <div class="eye">07 &mdash; Fuentes</div>
+  <h2>Referencias bibliograficas</h2>
+  <ul class="rl">
+    <li><span class="ri">[1]</span><div>Malik, G., &amp; Prashasti. (2025). Shift Left Security. <em>The Eastasouth Journal of Information System and Computer Science</em>, 2(03), 219&ndash;245. <a href="https://doi.org/10.58812/esiscs.v2i03.528" target="_blank">doi.org/10.58812/esiscs.v2i03.528</a></div></li>
+    <li><span class="ri">[2]</span><div>Mohammed, K. I., Shanmugam, B., &amp; El-Den, J. (2025). Evolution of DevSecOps. <em>Technologies</em>, 13(12), 548. <a href="https://doi.org/10.3390/technologies13120548" target="_blank">doi.org/10.3390/technologies13120548</a></div></li>
+    <li><span class="ri">[3]</span><div>OWASP Foundation. (s.f.). <em>OWASP DevSecOps Guideline v0.2</em>. <a href="https://owasp.org/www-project-devsecops-guideline/latest/00a-Overview.html" target="_blank">owasp.org</a></div></li>
+    <li><span class="ri">[4]</span><div>OWASP Foundation. (s.f.). <em>OWASP Top 10</em>. <a href="https://owasp.org/Top10/" target="_blank">owasp.org/Top10</a></div></li>
+    <li><span class="ri">[5]</span><div>Seelam, J. (2019). Integrating Shift-Left Security in CI/CD. <em>IJCET</em>, 10(5), 222&ndash;232. <a href="https://doi.org/10.34218/IJCET_10_05_022" target="_blank">doi.org/10.34218/IJCET_10_05_022</a></div></li>
+    <li><span class="ri">[6]</span><div>Singh, B. (2019). Shifting Security Left: Integrating DevSecOps into Agile SDLC. <em>The Research Journal</em>. <a href="https://www.academia.edu/129511330" target="_blank">academia.edu</a></div></li>
+    <li><span class="ri">[7]</span><div>Toner, P., Kangas, L., Brunton, J., &amp; Andrewson, S. (2025). <em>Shifting Security Left: Best Practices in DevSecOps</em>.</div></li>
+    <li><span class="ri">[8]</span><div>Harness.io. (2026). <em>What is Shift Left Security</em>. <a href="https://www.harness.io/blog/what-is-shift-left-security" target="_blank">harness.io/blog/what-is-shift-left-security</a></div></li>
+    <li><span class="ri">[9]</span><div>Instituto Nacional de Ciberseguridad (INCIBE). (2020). <em>Guia de desarrollo seguro de software</em>. <a href="https://www.incibe.es" target="_blank">incibe.es</a></div></li>
+    <li><span class="ri">[10]</span><div>Microsoft. (2023). <em>DevSecOps: integracion de la seguridad en el ciclo de desarrollo</em>. Microsoft Learn.</div></li>
+    <li><span class="ri">[11]</span><div>Pressman, R. (2015). <em>Ingenieria de software: un enfoque practico</em> (7.a ed.). McGraw-Hill.</div></li>
+    <li><span class="ri">[12]</span><div>Sommerville, I. (2011). <em>Ingenieria de software</em> (9.a ed.). Pearson.</div></li>
+  </ul>
+</section>
+</main>
+
+<footer class="ft">
+  <p>ULEAM &middot; Ingenieria en Software &middot; Sexto Semestre &middot; 2026-1<br>Ciclos de Desarrollo del Software Seguro &middot; Docente: Lic. Eliecer Castillo Bravo</p>
+  <p style="text-align:right">Shift Left Security<br>Grupo 6 &mdash; Analisis de codigo vulnerable</p>
+</footer>
+
+<script>
+function show(btn,idx){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".tb").forEach(b=>b.classList.remove("on"));
+  document.getElementById("p"+idx).classList.add("on");
+  btn.classList.add("on");
+}
+</script>
+</body>
+</html>
